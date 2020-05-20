@@ -17,9 +17,8 @@ library("shinythemes")
 options(osrm.server = "http://167.114.229.97:5003/")
 rm(list=ls())
 
-# your path
-path <- "/home/cg2020/cg2020forto/"
-Token_map_box <- "https://api.mapbox.com/styles/v1/guillemforto/ck6g8gasf32l41jmkg0956sr5/tiles/256/{z}/{x}/{y}@2x?access_token=pk.eyJ1IjoiZ3VpbGxlbWZvcnRvIiwiYSI6ImNrNjdsYWp6dTE5emIzcG83empsa21teXEifQ.TwcCOiGdCCELzulwTxps0g"
+path <- "~/github/optimal_pos"
+# Token_map_box <-
 
 #Projections definition
 LIIE <- "+proj=lcc +lat_1=46.8 +lat_0=46.8 +lon_0=0 +k_0=0.99987742 +x_0=600000 +y_0=2200000 +a=6378249.2 +b=6356515 +towgs84=-168,-60,320,0,0,0,0 +pm=paris +units=m +no_defs"
@@ -27,35 +26,35 @@ WGS84 <- "+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs"
 
 # ENVIRONMENTS
   # geo1 (INSEE zones)
-load(paste(path,"/data/in/ign/CONTOURS-IRIS_2-1__SHP__FRA_2018-06-08.7z_data_INSEE_IRIS.RData",sep=""))
-#return geo1, contient des SPatialpolygons avec des infos 
+load(paste(path, "/data/in/ign/CONTOURS-IRIS_2-1__SHP__FRA_2018-06-08.7z_data_INSEE_IRIS.RData", sep=''))
+#return geo1, contient des SPatialpolygons avec des infos
   # market zones (from last session)
-load(paste(path,"/data/tr/final_project/market_zones.RData", sep=""))
+load(paste(path, "/data/tr/final_project/market_zones.RData", sep=''))
 head(market_zones@data)
 
   # point of sales data (63 pos)
-load("/home/cg2020/shared/data/in/pos_sp.RData")
+load(paste(path, "/data/in/pos_sp.RData", sep=''))
   # customers data
-load("/home/cg2020/shared/data//in/cl_sp.RData")
+load(paste(path, "/data/in/cl_sp.RData", sep=''))
   # INSEE Blocs data
-load("/home/cg2020/shared/data/in/blocs200m_iris_geometrie_name_geo2_data.RData")
+load(paste(path, "/data/in/blocs200m_iris_geometrie_name_geo2_data.RData", sep=''))
 
 # NEW DATA
   # sirene competitors (url : https://data.opendatasoft.com/explore/dataset/sirene_v3%40public/)
   # we consider only competitors of the subsector ("Commerce de détail d'habillement en magasin spécialisé")
-load("/home/cg2020/shared/data/in/sirene_competitors.RData")
+load(paste(path, "/data/in/sirene_competitors.RData", sep=''))
 head(sirene)
   # market potential (amount of euros that consumers spent on this market)
-load("/home/cg2020/shared/data/in/mp.RData")
+load(paste(path, "/data/in/mp.RData", sep=''))
 head(mp)
   # landcover: https://www.statistiques.developpement-durable.gouv.fr/corine-land-cover-0?rubrique=348&dossier=1759
-load("/home/cg2020/shared/data/in/landcover.RData")
+load(paste(path, "/data/in/landcover.RData", sep=''))
 head(landcover@data)
 
 # control
-landcover_523 <- spTransform(subset(landcover, CODE_12=="523")[1,], CRS(WGS84))
-leaflet() %>% addTiles(urlTemplate = Token_map_box, attribution = 'Maps by <a href="http://www.mapbox.com/">Mapbox</a>') %>%
-  addPolygons(data = landcover_523, fillColor = "red", stroke = TRUE, color = "black", opacity = 1, weight = 3, fillOpacity = 0.4)
+# landcover_523 <- spTransform(subset(landcover, CODE_12=="523")[1,], CRS(WGS84))
+# leaflet() %>% addTiles(urlTemplate = Token_map_box, attribution = 'Maps by <a href="http://www.mapbox.com/">Mapbox</a>') %>%
+#   addPolygons(data = landcover_523, fillColor = "red", stroke = TRUE, color = "black", opacity = 1, weight = 3, fillOpacity = 0.4)
 
 
 ### DEFINING AN OBJECTIVE FUNCTION ###
@@ -126,10 +125,7 @@ colnames(competitors) <- c('IRIS', 'nb_competitors')
 market_zones@data <- merge(market_zones@data, competitors, by="IRIS")
 
 
-# 4.	At least two constraints.   
-# Use the competitors data, Blocs data, landcover data or IRIS Data
-# Example : near à competitor, at least N population at the zone, target and specific population
-
+# 4.	At least two constraints.
   # get a look at what's inside our dataset before choosing the constraint
 head(market_zones@data)
 dim(market_zones@data) # 8991 observations, 26 variables
@@ -144,7 +140,7 @@ sensible_areas <- spTransform(sensible_areas, CRS(WGS84))
 leaflet() %>%  addTiles(urlTemplate = Token_map_box, attribution = 'Maps by <a href="http://www.mapbox.com/">Mapbox</a>') %>%
   # airports in blue
   addPolygons(data = subset(sensible_areas, CODE_12 == '124'), fillColor = "blue", stroke = TRUE, color = "blue", opacity = 1, weight = 3, fillOpacity = 0.4) %>%
-  # mineral extraction sites in purple 
+  # mineral extraction sites in purple
   addPolygons(data = subset(sensible_areas, CODE_12 == '131'), fillColor = "purple", stroke = TRUE, color = "purple", opacity = 1, weight = 3, fillOpacity = 0.4) %>%
   # dump sites in brown
   addPolygons(data = subset(sensible_areas, CODE_12 == '132'), fillColor = "brown", stroke = TRUE, color = "brown", opacity = 1, weight = 3, fillOpacity = 0.4) %>%
@@ -180,9 +176,9 @@ coord_points <- SpatialPointsDataFrame(data = market_zones@data[,c('lon','lat')]
 
 res <- over(coord_points, blocs_WGS84)
 w <- which(!is.na(res$idgeo2))
-length(w) 
+length(w)
 
-#on ajoute la vérification ou non de la seconde contrainte comme nouvelle colonne dans le dataset
+# on ajoute la vérification ou non de la seconde contrainte comme nouvelle colonne dans le dataset
 market_zones@data$second_constraint <- FALSE
 market_zones@data$second_constraint[w] <- TRUE
 
@@ -209,7 +205,7 @@ get_variables_of_interest <- function(df){
   df$prop_POP15P_CS3 = df$C14_POP15P_CS3 / df$P14_POP
   df$prop_POP15P_CS5 = df$C14_POP15P_CS5 / df$P14_POP
   df$prop_POP15P_CS8 = df$C14_POP15P_CS8 / df$P14_POP
-  
+
   return(df)
 }
 
@@ -247,28 +243,24 @@ new_positions <- sirene_sp[sample(1:length(sirene_sp), nb_candidate_points),]
 # 2. apply the LM1 model
 # 3. based on your constraints what is the best and worst area
 
-
 get_market_zone_for_competitor <- function(i) {
   # i will go from 1:nb_candidate_points
   ith_competitor_position <- coordinates(spTransform(new_positions[i,], CRS(LIIE)))
-  
-  # We get all geo1 variables of the 2000 closest (euclid dist) IRIS to the ith_competitor_position. 
+
+  # We get all geo1 variables of the 2000 closest (euclid dist) IRIS to the ith_competitor_position.
   # This creates a market zone
   IRIS_positions <- data.frame(coordinates(spTransform(SpatialPoints(coords = geo1@data[,c("lon","lat")], proj4string = CRS(WGS84)), CRS(LIIE))))
   colnames(IRIS_positions) <- c("x","y")
-  new_market_zone <- geo1@data[c(get.knnx(data = IRIS_positions, 
+  new_market_zone <- geo1@data[c(get.knnx(data = IRIS_positions,
                                           query = ith_competitor_position, k = 1000)$nn.index),]
-  
-  #l'object ci-dessus est bien de taille 2000
-  
-  #over(sens, buffer)
-  
+  # l'object ci-dessus est bien de taille 2000
+
   # socio-demographic
   new_market_zone <- new_market_zone[,c('IRIS', 'lon', 'lat', subset_INSEE)]
-  
+
   # competitors (c'est cette ligne qui fait qu'on a pas 2000 obs par pos_id)
   new_market_zone <- merge(new_market_zone, competitors, by="IRIS")
-  
+
   # minutes (traveling time)
     # the origins are the customers
   origin <- new_market_zone[,c("IRIS","lon","lat")]
@@ -279,14 +271,14 @@ get_market_zone_for_competitor <- function(i) {
     # now we can get the 2000 traveling times
   new_market_zone$minutes <- c(osrmTable(src = data.frame(origin), dst = data.frame(destination))$durations) / 60
   # new_market_zone <- new_market_zone[which(new_market_zone$minutes < 35),] # limit of 35 minutes
-  
+
   # variables of interest
   new_market_zone <- get_variables_of_interest(new_market_zone)
-  
+
   # add index new_pos_i
   new_pos_i <- paste("new_pos_", i, sep="")
   new_market_zone$posid <- new_pos_i
-  
+
   return(new_market_zone)
 }
 
@@ -304,8 +296,8 @@ all_new_market_zones$market_share_predicted<-predict(LM1, newdata = all_new_mark
 
 # The two constraints
 
-#First constraint
-#add the nb of sensible areas from market zones
+# First constraint
+# add the nb of sensible areas from market zones
 new_positions_LIIE<-spTransform(new_positions, CRS(LIIE))
 new_positions_buffer<-gBuffer(spgeom = new_positions_LIIE, byid=TRUE, width = 10000)
 new_positions_buffer <- spTransform(new_positions_buffer, CRS(WGS84))
@@ -313,7 +305,7 @@ new_positions_buffer <- spTransform(new_positions_buffer, CRS(WGS84))
 leaflet() %>%  addTiles() %>%
   addPolygons(data = new_positions_buffer, fillColor = "blue", stroke = TRUE, color = "blue", opacity = 1, weight = 3, fillOpacity = 0.4) %>%
   addPolygons(data = sensible_areas, fillColor = "red", stroke = TRUE, color = "red", opacity = 1, weight = 3, fillOpacity = 0.4)
-  
+
 for (i in 1:length(new_positions)){
   print(i)
   ov2 <- over(new_positions_buffer[i,], sensible_areas, returnList = TRUE)
@@ -321,9 +313,7 @@ for (i in 1:length(new_positions)){
 }
 
 
-## Second constraint 
-
-
+## Second constraint
 res_new <- over(new_positions[,c('longitude','latitude')], blocs_WGS84)
 w_new <- which(!is.na(res_new$idgeo2))
 length(w_new)
@@ -333,11 +323,11 @@ new_positions$second_constraint[w_new] <- TRUE
 
 
 
-#add the predicted market shares
+# add the predicted market shares
 predicted_market_zones<-select(all_new_market_zones, posid, market_share_predicted)
 predicted_market_zones$market_share_predicted[is.na(predicted_market_zones$market_share_predicted)]<-0
 
-#add sum of market shares
+# add sum of market shares
 sum_market_zones<-aggregate(predicted_market_zones$market_share_predicted, by=list(posid=predicted_market_zones$posid), FUN=sum)
 sum_market_zones$posid<-str_sub(sum_market_zones$posid,start=-1)
 for (i in 1:length(new_positions)){
@@ -345,7 +335,7 @@ for (i in 1:length(new_positions)){
   new_positions$sum_market[i]<-filter(sum_market_zones, posid == i-1)$x
 }
 
-#add count of competitors
+# add count of competitors
 count_market_zones<-aggregate(predicted_market_zones$market_share_predicted, by=list(posid=predicted_market_zones$posid), FUN=length)
 count_market_zones$posid<-str_sub(count_market_zones$posid,start=-1)
 for (i in 1:length(new_positions)){
@@ -353,14 +343,14 @@ for (i in 1:length(new_positions)){
   new_positions$count_market[i]<-filter(count_market_zones, posid == i-1)$x
 }
 
-best<-new_positions[which.max(new_positions$sum_market),]
-worst<-new_positions[which.min(new_positions$sum_market),]
+best <- new_positions[which.max(new_positions$sum_market),]
+worst <- new_positions[which.min(new_positions$sum_market),]
 
 
 leaflet_project <- leaflet() %>%  addTiles(urlTemplate = Token_map_box) %>%
   addCircleMarkers(data=new_positions, radius = ~sum_market,
                    stroke = TRUE, color = "blue", opacity = 0.8,
-                   labelOptions = labelOptions(noHide = T, 
+                   labelOptions = labelOptions(noHide = T,
                                                direction = 'top',
                                                offset=c(0,0),
                                                textOnly = TRUE,
@@ -371,9 +361,10 @@ leaflet_project <- leaflet() %>%  addTiles(urlTemplate = Token_map_box) %>%
   addCircleMarkers(data = worst,color="red", group = "best_worst")
 leaflet_project
 
-save(leaflet_project, file=paste("/home/cg2020/cg2020forto/shinyapp_project/www/leaflet_project.RData"))
+save(leaflet_project, file=paste(path, "/deployment/www/leaflet_project.RData", sep=''))
+# load(paste(path, "/deployment/www/leaflet_project.RData", sep=''))
 
-
+# deployment
 ui <- bootstrapPage(
   tags$style(type = "text/css", "html, body {width:100%;height:100%}"),
   leafletOutput("Map", width = "100%", height = "100%"),
@@ -385,15 +376,16 @@ ui <- bootstrapPage(
                 sliderInput("sensible_areas",label="Number of sensible areas in the perimeter:",
                             min=0, max=max(new_positions$nbr_sensible_areas), value=c(0,3), step=1, width=280),
                 checkboxInput("second_constraint", "Population constraint respected", TRUE),
-                checkboxGroupInput("employees", label = "Number of employees:", 
+                checkboxGroupInput("employees", label = "Number of employees:",
                                    choices = list("No employees" = 'NN', "0 employees" = "0", "1 or 2 employees" = 2, "3 to 5 employees" = 3),
                                    selected = c("NN","0","1","2","3")),
                 h6('Size of the points is proportional to the'),
                 h6('sum of the market shares of the competitors.')
 ))
-  
+
+
 server<-function(input, output, session) {
-  
+
   san<-reactive({
     subset(new_positions,new_positions$count_market>=input$competitors[1]&
                          new_positions$count_market<=input$competitors[2]&
@@ -402,7 +394,7 @@ server<-function(input, output, session) {
                          new_positions$EFETCENT %in% input$employees&
                          new_positions$second_constraint == input$second_constraint)
                 })
-  
+
   output$Map <- renderLeaflet({leaflet_project})
 
   observe({
@@ -410,17 +402,16 @@ server<-function(input, output, session) {
       clearMarkers() %>%
       addCircleMarkers(data=san(), radius = ~sum_market,
                        stroke = TRUE, color = "blue", opacity = 0.8,
-                       labelOptions = labelOptions(noHide = T, 
+                       labelOptions = labelOptions(noHide = T,
                                                    direction = 'top',
                                                    offset=c(0,0),
                                                    textOnly = TRUE,
                                                    style=list('color'='rgba(0,0,0,1)','font-family'= 'Arial Black','font-style'= 'bold',
                                                               'box-shadow' = '0px 0px rgba(0,0,0,0.25)','font-size' = '6px',
                                                               'background-color'='rgba(255,255,255,0.7)','border-color' = 'rgba(0,0,0,0)')))%>%
-      addCircleMarkers(data = best,color="green", group = "best_worst")%>%
-      addCircleMarkers(data = worst,color="red", group = "best_worst")
+      addCircleMarkers(data = best, color="green", group = "best_worst")%>%
+      addCircleMarkers(data = worst, color="red", group = "best_worst")
       })
 }
 
 shinyApp(ui = ui, server = server)
-

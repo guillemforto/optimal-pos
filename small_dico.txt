@@ -1,0 +1,19 @@
+TABLES:
+- geo1: IRIS + plenty of variables + lat + lon + Polygons
+
+- market_zones (from last session):
+IRIS + sales + lat + lon + plenty of variables + mp + ms (our Y~X+eps) + Polygons
+
+
+- pos_sp (point of sales data):	IRIS + lat + lon + pos_id
+
+- cl_sp (customers data): IRIS + lat + lon + pos_id + cl_id + sales
+
+- geo2data (INSEE 200m): idgeo2 + lat + lon + x + y + nbcar + ind_c
+
+
+- sirene (competitors data): SIREN + plenty of variables
+
+- mp (market potential): IRIS + mp
+
+- landcover : ID + Code_12 + AREA_HA
