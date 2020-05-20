@@ -37,13 +37,13 @@ The main idea was to train a spatial interaction model so that it could predict 
 - Finally, we implemented everything on an interactive Shiny app that shows the best and the worst market zone, with at least one widget that explains the socioeconomic/competitors characteristics of each the zone.
 
 ## Running the code
-First thing to do is downloading all the data files from: https://www.dropbox.com/sh/hd8efvvby9qc8p7/AAAoTl7qWtc4VAKYEvMWrxDxa?dl=0. Add them in a folder called 'data' in the root of the repository.<br>
-Also, you'll need to create an account on https://www.mapbox.com, and get a token map box from their API. Replace it at the beginning of the script (in `final_project.R`) once you have it.<br>
-Finally, change the variable `path` at the beginning of the script if necessary, to the location of your main R script.
-Open `final_project.R` with RStudio (>= version 1.2.5001 required). When the code, you may need to install several packages. Last version of RStudio installs them automatically if it detects you don't have them.<br>
+- First thing to do is downloading all the data files from: https://www.dropbox.com/sh/hd8efvvby9qc8p7/AAAoTl7qWtc4VAKYEvMWrxDxa?dl=0. Add them in a folder called 'data' in the root of the repository.<br>
+- Also, you'll need to create an account on https://www.mapbox.com, and get a token map box from their API. Replace it at the beginning of the script (in `final_project.R`) once you have it.<br>
+- Finally, change the variable `path` at the beginning of the script to the location of the data folder, in order to be able to load the data files. (e.g. if the data folder is located in '/Users/guillemforto/github/optimal_pos/data' then `path <- "~/github/optimal_pos"`)
+- Open `final_project.R` with RStudio (>= version 1.2.5001 required). You may need to install several packages, but RStudio will propose to install them automatically if it detects you still don't have them.<br>
 
 ## Output
-The output tables for the 10 candidates looks like this:
+The output table for best and worst candidate look like this:
 - Best candidate
 
 | SIREN | NIC | ... | longitude | latitude | geo_score | nbr_sensible_areas | second_constraint | sum_market | count_market |
