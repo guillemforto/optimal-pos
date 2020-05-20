@@ -18,7 +18,7 @@ options(osrm.server = "http://167.114.229.97:5003/")
 rm(list=ls())
 
 path <- "~/github/optimal_pos"
-# Token_map_box <-
+Token_map_box <- "https://api.mapbox.com/styles/v1/guillemforto/ck6g8gasf32l41jmkg0956sr5/tiles/256/{z}/{x}/{y}@2x?access_token=pk.eyJ1IjoiZ3VpbGxlbWZvcnRvIiwiYSI6ImNrNjdsYWp6dTE5emIzcG83empsa21teXEifQ.TwcCOiGdCCELzulwTxps0g"
 
 #Projections definition
 LIIE <- "+proj=lcc +lat_1=46.8 +lat_0=46.8 +lon_0=0 +k_0=0.99987742 +x_0=600000 +y_0=2200000 +a=6378249.2 +b=6356515 +towgs84=-168,-60,320,0,0,0,0 +pm=paris +units=m +no_defs"
@@ -26,29 +26,29 @@ WGS84 <- "+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs"
 
 # ENVIRONMENTS
   # geo1 (INSEE zones)
-load(paste(path, "/data/in/ign/CONTOURS-IRIS_2-1__SHP__FRA_2018-06-08.7z_data_INSEE_IRIS.RData", sep=''))
+load(paste(path, "/data/CONTOURS-IRIS_2-1__SHP__FRA_2018-06-08.7z_data_INSEE_IRIS.RData", sep=''))
 #return geo1, contient des SPatialpolygons avec des infos
   # market zones (from last session)
-load(paste(path, "/data/tr/final_project/market_zones.RData", sep=''))
-head(market_zones@data)
+load(paste(path, "/data/market_zones.RData", sep=''))
+# head(market_zones@data)
 
   # point of sales data (63 pos)
-load(paste(path, "/data/in/pos_sp.RData", sep=''))
+load(paste(path, "/data/pos_sp.RData", sep=''))
   # customers data
-load(paste(path, "/data/in/cl_sp.RData", sep=''))
+load(paste(path, "/data/cl_sp.RData", sep=''))
   # INSEE Blocs data
-load(paste(path, "/data/in/blocs200m_iris_geometrie_name_geo2_data.RData", sep=''))
+load(paste(path, "/data/blocs200m_iris_geometrie_name_geo2_data.RData", sep=''))
 
 # NEW DATA
   # sirene competitors (url : https://data.opendatasoft.com/explore/dataset/sirene_v3%40public/)
   # we consider only competitors of the subsector ("Commerce de détail d'habillement en magasin spécialisé")
-load(paste(path, "/data/in/sirene_competitors.RData", sep=''))
+load(paste(path, "/data/sirene_competitors.RData", sep=''))
 head(sirene)
   # market potential (amount of euros that consumers spent on this market)
-load(paste(path, "/data/in/mp.RData", sep=''))
+load(paste(path, "/data/mp.RData", sep=''))
 head(mp)
   # landcover: https://www.statistiques.developpement-durable.gouv.fr/corine-land-cover-0?rubrique=348&dossier=1759
-load(paste(path, "/data/in/landcover.RData", sep=''))
+load(paste(path, "/data/landcover.RData", sep=''))
 head(landcover@data)
 
 # control
@@ -161,14 +161,14 @@ market_zones@data$nb_sensible_areas[is.na(market_zones@data$nb_sensible_areas)] 
 # 4.2 Second constraint
   # Ex: The pos has to be in a 'carreau' where at least 61 (9th decile of geo2_data$ind_c) people reside
 
-subset_geo2_data<- subset(geo2_data, ind_c > quantile(geo2_data$ind_c, c(0.90)))
+subset_geo2_data <- subset(geo2_data, ind_c > quantile(geo2_data$ind_c, c(0.90)))
 
 #certaines lignes peuvent prendre plusieurs minutes pour tourner
-geo2_data_sp<-SpatialPointsDataFrame(coords = subset_geo2_data[,c("lon","lat")],data = subset_geo2_data, proj4string = CRS(WGS84))
+geo2_data_sp <- SpatialPointsDataFrame(coords = subset_geo2_data[,c("lon","lat")],data = subset_geo2_data, proj4string = CRS(WGS84))
 geo2_data_sp_LIIE <- spTransform(geo2_data_sp,CRS(LIIE))
-geo2_data_sp_LIIE_blocs<-gBuffer(spgeom = geo2_data_sp_LIIE,byid = TRUE,width = 100,capStyle = "SQUARE")
-blocs_WGS84<-spTransform(gBuffer(spgeom = geo2_data_sp_LIIE_blocs,byid = TRUE,width = 100,capStyle = "SQUARE"),CRS(WGS84))
-blocs_WGS84<-spChFIDs(blocs_WGS84,as.character(blocs_WGS84$idgeo2))
+geo2_data_sp_LIIE_blocs <- gBuffer(spgeom = geo2_data_sp_LIIE,byid = TRUE,width = 100,capStyle = "SQUARE")
+blocs_WGS84 <- spTransform(gBuffer(spgeom = geo2_data_sp_LIIE_blocs,byid = TRUE,width = 100,capStyle = "SQUARE"),CRS(WGS84))
+blocs_WGS84 <- spChFIDs(blocs_WGS84,as.character(blocs_WGS84$idgeo2))
 
 
 coord_points <- SpatialPointsDataFrame(data = market_zones@data[,c('lon','lat')],coords = market_zones@data[,c('lon','lat')],
@@ -234,7 +234,7 @@ summary(market_zones@data)
 # You need to apply MODEL (LM1) to the 10 new positions
 # You need to construct the market_zones matrix of the new 10 points
 nb_candidate_points = 10
-set.seed(42) # to get always the same sample (one without failing points)
+set.seed(123) # to get always the same sample (one without failing points)
 new_positions <- sirene_sp[sample(1:length(sirene_sp), nb_candidate_points),]
 
 
@@ -247,13 +247,13 @@ get_market_zone_for_competitor <- function(i) {
   # i will go from 1:nb_candidate_points
   ith_competitor_position <- coordinates(spTransform(new_positions[i,], CRS(LIIE)))
 
-  # We get all geo1 variables of the 2000 closest (euclid dist) IRIS to the ith_competitor_position.
+  # We get all geo1 variables of the 1000 closest (euclid dist) IRIS to the ith_competitor_position.
   # This creates a market zone
   IRIS_positions <- data.frame(coordinates(spTransform(SpatialPoints(coords = geo1@data[,c("lon","lat")], proj4string = CRS(WGS84)), CRS(LIIE))))
   colnames(IRIS_positions) <- c("x","y")
   new_market_zone <- geo1@data[c(get.knnx(data = IRIS_positions,
                                           query = ith_competitor_position, k = 1000)$nn.index),]
-  # l'object ci-dessus est bien de taille 2000
+  # l'object ci-dessus est bien de taille 1000
 
   # socio-demographic
   new_market_zone <- new_market_zone[,c('IRIS', 'lon', 'lat', subset_INSEE)]
@@ -288,18 +288,17 @@ for (i in 1:length(new_positions)) {
   print(i)
   all_new_market_zones <- rbind(all_new_market_zones, get_market_zone_for_competitor(i))
 }
-# if the for failed, rerun part 5 (picks 10 new points that hopefully won't contain lat lon issues)
+# if the for failed, rerun part 5 until you pick 10 new points that hopefully won't contain lat lon issues
 # View(all_new_market_zones)
 
 # Applying LM1
-all_new_market_zones$market_share_predicted<-predict(LM1, newdata = all_new_market_zones)
+all_new_market_zones$market_share_predicted <- predict(LM1, newdata = all_new_market_zones)
 
 # The two constraints
-
-# First constraint
+  # First constraint
 # add the nb of sensible areas from market zones
-new_positions_LIIE<-spTransform(new_positions, CRS(LIIE))
-new_positions_buffer<-gBuffer(spgeom = new_positions_LIIE, byid=TRUE, width = 10000)
+new_positions_LIIE <- spTransform(new_positions, CRS(LIIE))
+new_positions_buffer <- gBuffer(spgeom = new_positions_LIIE, byid=TRUE, width = 10000)
 new_positions_buffer <- spTransform(new_positions_buffer, CRS(WGS84))
 
 leaflet() %>%  addTiles() %>%
@@ -313,7 +312,7 @@ for (i in 1:length(new_positions)){
 }
 
 
-## Second constraint
+  ## Second constraint
 res_new <- over(new_positions[,c('longitude','latitude')], blocs_WGS84)
 w_new <- which(!is.na(res_new$idgeo2))
 length(w_new)
