@@ -37,7 +37,7 @@ The main idea was to train a spatial interaction model so that it could predict 
 - Finally, we implemented everything on an interactive Shiny app that shows the best and the worst market zone, with at least one widget that explains the socioeconomic/competitors characteristics of each the zone.
 
 ## Running the code
-- First thing to do is downloading all the data files and add them in a folder called 'data' in the root of the repository: https://www.dropbox.com/sh/hd8efvvby9qc8p7/AAAoTl7qWtc4VAKYEvMWrxDxa?dl=0.
+- First thing to do is downloading all the data files and add them in a folder called 'data' in the root of the repository: https://www.dropbox.com/sh/olg8tahymztcjiu/AACPStCdyHbfn0Xvu_notTroa?dl=0.
 
 - Also, you'll need to create an account on https://www.mapbox.com, and get a token map box from their API. Replace it at the beginning of the script (in `final_project.R`) once you have it.
 

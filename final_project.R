@@ -323,12 +323,12 @@ new_positions$second_constraint[w_new] <- TRUE
 
 
 # add the predicted market shares
-predicted_market_zones<-select(all_new_market_zones, posid, market_share_predicted)
+predicted_market_zones <- select(all_new_market_zones, posid, market_share_predicted)
 predicted_market_zones$market_share_predicted[is.na(predicted_market_zones$market_share_predicted)]<-0
 
 # add sum of market shares
-sum_market_zones<-aggregate(predicted_market_zones$market_share_predicted, by=list(posid=predicted_market_zones$posid), FUN=sum)
-sum_market_zones$posid<-str_sub(sum_market_zones$posid,start=-1)
+sum_market_zones <- aggregate(predicted_market_zones$market_share_predicted, by=list(posid=predicted_market_zones$posid), FUN=sum)
+sum_market_zones$posid <- str_sub(sum_market_zones$posid,start=-1)
 for (i in 1:length(new_positions)){
   print(i)
   new_positions$sum_market[i]<-filter(sum_market_zones, posid == i-1)$x
@@ -405,9 +405,9 @@ server<-function(input, output, session) {
                                                    direction = 'top',
                                                    offset=c(0,0),
                                                    textOnly = TRUE,
-                                                   style=list('color'='rgba(0,0,0,1)','font-family'= 'Arial Black','font-style'= 'bold',
-                                                              'box-shadow' = '0px 0px rgba(0,0,0,0.25)','font-size' = '6px',
-                                                              'background-color'='rgba(255,255,255,0.7)','border-color' = 'rgba(0,0,0,0)')))%>%
+                                                   style=list('color'='rgba(0,0,0,1)', 'font-family' = 'Arial Black', 'font-style' = 'bold',
+                                                              'box-shadow' = '0px 0px rgba(0,0,0,0.25)', 'font-size' = '6px',
+                                                              'background-color'='rgba(255,255,255,0.7)', 'border-color' = 'rgba(0,0,0,0)'))) %>%
       addCircleMarkers(data = best, color="green", group = "best_worst")%>%
       addCircleMarkers(data = worst, color="red", group = "best_worst")
       })
